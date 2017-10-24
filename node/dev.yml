@@ -1,0 +1,59 @@
+hosts:
+  file_name: /etc/hosts
+  vals:
+    - 192.168.250.210 pool
+    - 192.168.250.211 pool1
+    - 192.168.250.212 pool2
+    - 192.168.250.213 pool3
+    - 192.168.250.214 pg1
+    - 192.168.250.215 pg2
+
+postgresql:
+  rpm:     https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm
+  pkg:
+    - postgresql96
+    - postgresql96-server
+    - postgresql96-devel
+    - postgresql96-libs
+    - postgresql96-contrib
+  bin_dir: /usr/pgsql-9.6/bin/
+  pgdata:  /var/lib/pgsql/9.6/data/
+  initdb_options:
+    encoding: --encoding UTF8
+    locale:   --no-locale
+
+pgpool:
+  rpm: http://www.pgpool.net/yum/rpms/3.6/redhat/rhel-7-x86_64/pgpool-II-release-3.6-1.noarch.rpm
+  pkg:
+    - pgpool-II-pg96
+    - pgpool-II-pg96-debuginfo
+    - pgpool-II-pg96-devel
+    - pgpool-II-pg96-extensions
+  templates:
+    pcp_conf:
+      - postgres:e8a48653851e28c69d0506508fb27fc5
+      - pool:b10a8c0bede9eb4ea771b04db3149f28
+    pgpool_conf:
+      delegate_ip:  192.168.250.211
+      nic_dev_name: enp0s8
+      backend_hostname0: pg1
+      backend_data_directory0: /var/lib/pgsql/9.6/data/
+      backend_hostname1: pg2
+      backend_data_directory1: /var/lib/pgsql/9.6/data/
+      log_destination:       syslog,stderr
+      sr_check_user:         pgpool
+      sr_check_password:     pgpool
+      sr_check_database:     postgres
+      health_check_user:     pgpool
+      health_check_password: pgpool
+      failover_command:      /etc/pgpool-II/failover.sh %d %P %H %R
+      recovery_user:         postgres
+      recovery_password:     postgres
+      recovery_1st_stage_command: recovery_1st_stage
+    pool_hba_conf:
+      - host    all         pgpool           0.0.0.0/0          md5
+      - host    all         postgres         0.0.0.0/0          md5
+    pool_passwd:
+      - postgres:md53175bce1d3201d16594cebf9d7eb3f9d
+      - pgpool:md5f24aeb1c3b7d05d7eaf2cd648c307092
+
