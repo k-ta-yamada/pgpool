@@ -441,7 +441,7 @@ recovery_password = '<%= @pgpool_conf[:recovery_password] %>'
                                    # Online recovery password
 recovery_1st_stage_command = '<%= @pgpool_conf[:recovery_1st_stage_command] %>'
                                    # Executes a command in first stage
-recovery_2nd_stage_command = ''
+recovery_2nd_stage_command = '<%= @pgpool_conf[:recovery_2nd_stage_command] %>'
                                    # Executes a command in second stage
 recovery_timeout = 90
                                    # Timeout in seconds to wait for the

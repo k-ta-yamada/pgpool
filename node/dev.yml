@@ -49,7 +49,8 @@ pgpool:
       failover_command:      /etc/pgpool-II/failover.sh %d %P %H %R
       recovery_user:         postgres
       recovery_password:     postgres
-      recovery_1st_stage_command: recovery_1st_stage
+      recovery_1st_stage_command: recovery_1st_stage.sh
+      recovery_2nd_stage_command: recovery_2nd_stage.sh
     pool_hba_conf:
       - host    all         pgpool           0.0.0.0/0          md5
       - host    all         postgres         0.0.0.0/0          md5

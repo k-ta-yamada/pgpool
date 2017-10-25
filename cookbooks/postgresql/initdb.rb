@@ -12,10 +12,33 @@ end
 service 'postgresql-9.6.service' do
   # action %i[enable start]
   action :start
+  only_if 'systemctl status postgresql-9.6.service'
 end
 
-# TODO: execute CREATE ROLE
+# TODO: execute CREATE ROLE repl
+
+# TODO: execute CREATE ROLE pgpool
+
+# TODO: execute CREATE EXTENSION pgpool_recovery
+
 # TODO: template pg_hba.conf
+
 # TODO: template postgresql.conf
+
 # TODO: file recovery_1st_stage
-# TODO: file pgpool_remote_start
+PGPOOL_CONF = node[:pgpool][:templates][:pgpool_conf]
+remote_file "#{PGDATA}#{PGPOOL_CONF[:recovery_1st_stage_command]}" do
+  source  './files/var/lib/pgsql/9.6/data/recovery_1st_stage.sh'
+  owner   'postgres'
+  group   'postgres'
+  mode    '755'
+  only_if "test -e #{PGDATA}postgresql.conf"
+end
+# TODO: file recovery_2nd_stage
+remote_file "#{PGDATA}#{PGPOOL_CONF[:recovery_2nd_stage_command]}" do
+  source  './files/var/lib/pgsql/9.6/data/recovery_2nd_stage.sh'
+  owner   'postgres'
+  group   'postgres'
+  mode    '755'
+  only_if "test -e #{PGDATA}postgresql.conf"
+end
