@@ -26,7 +26,7 @@ end
 # TODO: template postgresql.conf
 
 # TODO: file recovery_1st_stage
-PGPOOL_CONF = node[:pgpool][:templates][:pgpool_conf]
+PGPOOL_CONF = node[:pgpool][:pgpool_conf]
 remote_file "#{PGDATA}#{PGPOOL_CONF[:recovery_1st_stage_command]}" do
   source  './files/var/lib/pgsql/9.6/data/recovery_1st_stage.sh'
   owner   'postgres'

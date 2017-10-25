@@ -7,13 +7,13 @@ end
 
 template '/etc/pgpool-II/pcp.conf' do
   # source '/etc/pgpool-II/pcp.conf.erb'
-  variables(pcp_conf: node[:pgpool][:templates][:pcp_conf])
+  variables(pcp_conf: node[:pgpool][:pcp_conf])
 end
 
 # MEMO: role側でホストごとに指定
 # template '/etc/pgpool-II/pgpool.conf' do
 #   source '/etc/pgpool-II/pgpool.conf.erb'
-#   variables(pgpool_conf: node[:pgpool][:templates][:pgpool_conf],
+#   variables(pgpool_conf: node[:pgpool][:pgpool_conf],
 #             wd_hostname: 'pool1',
 #             heartbeat_destination0: 'pool2',
 #             heartbeat_destination1: 'pool3',
@@ -23,12 +23,12 @@ end
 
 template '/etc/pgpool-II/pool_hba.conf' do
   # source '/etc/pgpool-II/pool_hba.conf.erb'
-  variables(pool_hba_conf: node[:pgpool][:templates][:pool_hba_conf])
+  variables(pool_hba_conf: node[:pgpool][:pool_hba_conf])
 end
 
 template '/etc/pgpool-II/pool_passwd' do
   # source '/etc/pgpool-II/pool_passwd.erb'
-  variables(pool_passwd: node[:pgpool][:templates][:pool_passwd])
+  variables(pool_passwd: node[:pgpool][:pool_passwd])
   owner 'root'
   group 'root'
   mode  '644'
