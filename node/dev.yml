@@ -16,11 +16,23 @@ postgresql:
     - postgresql96-devel
     - postgresql96-libs
     - postgresql96-contrib
-  bin_dir: /usr/pgsql-9.6/bin/
-  pgdata:  /var/lib/pgsql/9.6/data/
+    - pgpool-II-96-extensions
+  bin_dir:    /usr/pgsql-9.6/bin/
+  pgdata:     /var/lib/pgsql/9.6/data/
+  archivedir: /var/lib/pgsql/9.6/archivedir/
   initdb_options:
     encoding: --encoding UTF8
     locale:   --no-locale
+  pg_hba_conf:
+    - host    all             postgres        0.0.0.0/0               md5
+    - host    all             pgpool          192.168.250.0/24        md5
+    - host    replication     repl            192.168.250.0/24        md5
+  postgresql_conf:
+    listen_addresses: "*"
+    wal_level:        replica
+    max_wal_senders:  2
+    wal_keep_segments: 32
+    archive_mode:     "on"
 
 pgpool:
   rpm: http://www.pgpool.net/yum/rpms/3.6/redhat/rhel-7-x86_64/pgpool-II-release-3.6-1.noarch.rpm

@@ -50,12 +50,18 @@ bundle exec itamae ssh --host pool2 --node-yaml node/dev.yml roles/pool2.rb --dr
   - pool2 => pg1
   - pool2 => pg2
 - [ ] get database user_name from xxx.yml
-  - [./cookbooks/postgresql/create_object.rb](./cookbooks/postgresql/create_object.rb)
+  - [ ] [./cookbooks/postgresql/create_object.rb](./cookbooks/postgresql/create_object.rb)
 - [ ] `epel-release` need?
-  - [./roles/db_master.rb](./roles/db_master.rb)
-  - [./roles/db_slave.rb](./roles/db_slave.rb)
-  - [./roles/pool1.rb](./roles/pool1.rb)
-  - [./roles/pool2.rb](./roles/pool2.rb)
+  - [x] [./roles/db_master.rb](./roles/db_master.rb)
+  - [x] [./roles/db_slave.rb](./roles/db_slave.rb)
+  - [ ] [./roles/pool1.rb](./roles/pool1.rb)
+  - [ ] [./roles/pool2.rb](./roles/pool2.rb)
+- [ ] database user
+  - [ ] auth:
+    - repl: need?
+    - pgpool: SELECT need?
+  - [x] enable login by postgres user
+    - `ALTER ROLE`
 
 
 
