@@ -21,16 +21,22 @@ PostgreSQL High availability configuration by pgpool-II with watchdog.
 ---
 
 ```sh
-# setup itamae
+# install itamae
 bundle install --path vendor/bundle
 
+# setup server: change ip address, hostname, and reboot.
+bundle exec itamae ssh -h vm --node-yaml node/setup/pg1.yml   roles/setup.rb --dry-run
+bundle exec itamae ssh -h vm --node-yaml node/setup/pg2.yml   roles/setup.rb --dry-run
+bundle exec itamae ssh -h vm --node-yaml node/setup/pool1.yml roles/setup.rb --dry-run
+bundle exec itamae ssh -h vm --node-yaml node/setup/pool1.yml roles/setup.rb --dry-run
+
 # database
-bundle exec itamae ssh -y node/dev.yml --host pg1   db_master.rb
-bundle exec itamae ssh -y node/dev.yml --host pg2   db_slave.rb
+bundle exec itamae ssh --host pg1 --node-yaml node/dev.yml roles/db_master.rb --dry-run
+bundle exec itamae ssh --host pg2 --node-yaml node/dev.yml roles/db_slave.rb  --dry-run
 
 # pgpool
-bundle exec itamae ssh -y node/dev.yml --host pool1 pool1.rb
-bundle exec itamae ssh -y node/dev.yml --host pool2 pool2.rb
+bundle exec itamae ssh --host pool1 --node-yaml node/dev.yml roles/pool1.rb --dry-run
+bundle exec itamae ssh --host pool2 --node-yaml node/dev.yml roles/pool2.rb --dry-run
 ```
 
 

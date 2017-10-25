@@ -34,7 +34,7 @@ pgpool:
       - postgres:e8a48653851e28c69d0506508fb27fc5
       - pool:b10a8c0bede9eb4ea771b04db3149f28
     pgpool_conf:
-      delegate_ip:  192.168.250.211
+      delegate_ip:  192.168.250.210
       nic_dev_name: enp0s8
       backend_hostname0: pg1
       backend_data_directory0: /var/lib/pgsql/9.6/data/
