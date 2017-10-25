@@ -17,3 +17,5 @@ template '/etc/pgpool-II/pgpool.conf' do
             other_pgpool_hostname0: 'pool1',
             other_pgpool_hostname1: 'pool3')
 end
+
+include_recipe '../cookbooks/useradd'

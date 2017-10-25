@@ -22,3 +22,5 @@ service 'pgpool.service' do
   action %i[enable start]
   # action :start
 end
+
+include_recipe '../cookbooks/useradd'
