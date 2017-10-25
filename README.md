@@ -4,21 +4,13 @@ PostgreSQL High availability configuration by pgpool-II with watchdog.
 
 > NOTE: This repository is for self-study.
 
----
 
-- [Itamae by itamae-kitchen][itamae]
-  - [Resources · itamae-kitchen/itamae Wiki][Resources]
-  - [Best Practice · itamae-kitchen/itamae Wiki][Best-Practice]
 
----
+## usage
 
-- Qiita
-  - [Itamaeチートシート - Qiita][qiita1]
-  - [Chef脱落者が、Itamaeで快適インフラ生活する話 - Qiita][qiita2]
-  - [itamae 入門 - Qiita][qiita3]
-  - [itamae実践Tips - Qiita][qiita4]
+### Using `itamae`
 
----
+> NOTE: Please remove `--dry-run` option if you really want to apply
 
 ```sh
 # install itamae
@@ -38,6 +30,48 @@ bundle exec itamae ssh --host pg2 --node-yaml node/dev.yml roles/db_slave.rb  --
 bundle exec itamae ssh --host pool1 --node-yaml node/dev.yml roles/pool1.rb --dry-run
 bundle exec itamae ssh --host pool2 --node-yaml node/dev.yml roles/pool2.rb --dry-run
 ```
+
+### Remaining Task
+
+- ssh-copy
+  - for `pcp_recovery_node`.
+- pcp_recovery_node
+  - for start streaming replication.
+
+
+
+## todo
+
+- [ ] ssh-copy
+  - pg1 => pg2
+  - pg2 => pg1
+  - pool1 => pg1
+  - pool1 => pg2
+  - pool2 => pg1
+  - pool2 => pg2
+- [ ] get database user_name from xxx.yml
+  - [./cookbooks/postgresql/create_object.rb](./cookbooks/postgresql/create_object.rb)
+- [ ] `epel-release` need?
+  - [./roles/db_master.rb](./roles/db_master.rb)
+  - [./roles/db_slave.rb](./roles/db_slave.rb)
+  - [./roles/pool1.rb](./roles/pool1.rb)
+  - [./roles/pool2.rb](./roles/pool2.rb)
+
+
+
+## refs:
+
+- [Itamae by itamae-kitchen][itamae]
+  - [Resources · itamae-kitchen/itamae Wiki][Resources]
+  - [Best Practice · itamae-kitchen/itamae Wiki][Best-Practice]
+
+---
+
+- Qiita
+  - [Itamaeチートシート - Qiita][qiita1]
+  - [Chef脱落者が、Itamaeで快適インフラ生活する話 - Qiita][qiita2]
+  - [itamae 入門 - Qiita][qiita3]
+  - [itamae実践Tips - Qiita][qiita4]
 
 
 
