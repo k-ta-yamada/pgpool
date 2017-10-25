@@ -23,12 +23,12 @@ bundle exec itamae ssh -h vm --node-yaml node/setup/pool1.yml roles/setup.rb --d
 bundle exec itamae ssh -h vm --node-yaml node/setup/pool1.yml roles/setup.rb --dry-run
 
 # database
-bundle exec itamae ssh --host pg1 --node-yaml node/dev.yml roles/db_master.rb --dry-run
-bundle exec itamae ssh --host pg2 --node-yaml node/dev.yml roles/db_slave.rb  --dry-run
+bundle exec itamae ssh --host pg1 --node-yaml node/develop.yml roles/db_master.rb --dry-run
+bundle exec itamae ssh --host pg2 --node-yaml node/develop.yml roles/db_slave.rb  --dry-run
 
 # pgpool
-bundle exec itamae ssh --host pool1 --node-yaml node/dev.yml roles/pool1.rb --dry-run
-bundle exec itamae ssh --host pool2 --node-yaml node/dev.yml roles/pool2.rb --dry-run
+bundle exec itamae ssh --host pool1 --node-yaml node/develop.yml roles/pool1.rb --dry-run
+bundle exec itamae ssh --host pool2 --node-yaml node/develop.yml roles/pool2.rb --dry-run
 ```
 
 ### Remaining Task
