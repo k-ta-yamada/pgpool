@@ -62,18 +62,13 @@ bundle exec itamae ssh --host pool2 --node-yaml node/develop.yml roles/pool2.rb 
     - pgpool: Is `SELECT` need?
   - [x] enable login by postgres user
     - `ALTER ROLE`
-- [ ] [recovery_1st_stage.sh](./cookbooks/postgresql/files/var/lib/pgsql/9.6/data/recovery_1st_stage.sh)
+- [x] [recovery_1st_stage.sh](./cookbooks/postgresql/files/var/lib/pgsql/9.6/data/recovery_1st_stage.sh)
   - archivedir
-    - `/var/lib/pgsql/archivedir`
   - `hostname=$(hostname)`
-    - e.g: pg1.localdomain
   - pg_basebackup
-    - `-U repl`
   - `rm -rf $archivedir/*`
-    - can i delete it?
   - recovery.conf
     - primary_conninfo
-      - `user=repl`
 
 
 

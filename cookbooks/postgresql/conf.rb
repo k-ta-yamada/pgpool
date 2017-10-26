@@ -2,6 +2,7 @@ PGDATA          = node[:postgresql][:pgdata]
 ARCHIVEDIR      = node[:postgresql][:archivedir]
 PG_HBA_CONF     = node[:postgresql][:pg_hba_conf]
 POSTGRESQL_CONF = node[:postgresql][:postgresql_conf]
+RECOVERY_1ST_STAGE_SH = node[:postgresql][:recovery_1st_stage_sh]
 
 PGPOOL_CONF        = node[:pgpool][:pgpool_conf]
 RECOVERY_1ST_STAGE = PGPOOL_CONF[:recovery_1st_stage_command]
@@ -24,8 +25,10 @@ template "#{PGDATA}postgresql.conf" do
   mode      '600'
 end
 
-remote_file "#{PGDATA}#{RECOVERY_1ST_STAGE}" do
-  source  './files/var/lib/pgsql/9.6/data/recovery_1st_stage.sh'
+template "#{PGDATA}#{RECOVERY_1ST_STAGE}" do
+  variables recovery_1st_stage_sh: RECOVERY_1ST_STAGE_SH,
+            archivedir: ARCHIVEDIR
+  source  './templates/var/lib/pgsql/9.6/data/recovery_1st_stage.sh.erb'
   owner   'postgres'
   group   'postgres'
   mode    '755'

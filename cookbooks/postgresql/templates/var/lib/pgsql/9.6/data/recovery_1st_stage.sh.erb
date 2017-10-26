@@ -1,0 +1,38 @@
+#!/bin/bash -x
+# Recovery script for streaming replication.
+
+pgdata=$1
+remote_host=$2
+remote_pgdata=$3
+port=$4
+
+pghome=/usr/pgsql-9.6
+archivedir=<%= @archivedir %>
+<%#
+バックエンド接続としたいが単純にhostnameだとフロントエンド接続となってしまう。
+よって/etc/hostsに、バックエンドセグメントにhostnameにprefixを付与したaliasを指定する
+    例：
+    192.168.0.1 pg1
+    192.168.1.1 backend-pg1
+%>
+hostname=<%= @recovery_1st_stage_sh[:hostname_prefix] %>$(hostname)
+
+ssh -T postgres@$remote_host "
+rm -rf $remote_pgdata
+$pghome/bin/pg_basebackup -h $hostname -U <%= @recovery_1st_stage_sh[:replication_user] %> -D $remote_pgdata -x -c fast
+<%# archivedirはNFSによる共有設定のため、削除しない %>
+<%# rm -rf $archivedir/* %>
+
+cd $remote_pgdata
+cp postgresql.conf postgresql.conf.bak
+sed -e 's/#*hot_standby = off/hot_standby = on/' postgresql.conf.bak > postgresql.conf
+rm -f postgresql.conf.bak
+
+<%# これはpg_basebackupに-Rを指定して作成されるrecovery.confでもいいかもしれない %>
+cat > recovery.conf << EOT
+standby_mode = 'on'
+primary_conninfo = 'host="$hostname" port=$port user=<%= @recovery_1st_stage_sh[:replication_user] %>'
+<%# ひとまずいらない気がするのでコメントアウト %>
+<%# restore_command = 'scp $hostname:$archivedir/%f %p' %>
+EOT
+"
