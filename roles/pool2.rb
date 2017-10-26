@@ -1,12 +1,7 @@
 include_recipe '../cookbooks/hosts'
 
-# # TODO: need this?
-include_recipe '../cookbooks/epel-release'
-
 include_recipe '../cookbooks/pgpool-II'
-
 include_recipe '../cookbooks/pgpool-II/conf'
-
 # MEMO: role側でホストごとに指定
 template '/etc/pgpool-II/pgpool.conf' do
   source '../cookbooks/pgpool-II/templates/etc/pgpool-II/pgpool.conf.erb'
@@ -16,6 +11,10 @@ template '/etc/pgpool-II/pgpool.conf' do
             heartbeat_destination1: 'pool3',
             other_pgpool_hostname0: 'pool1',
             other_pgpool_hostname1: 'pool3')
+end
+service 'pgpool.service' do
+  action %i[enable start]
+  # action :start
 end
 
 include_recipe '../cookbooks/useradd'

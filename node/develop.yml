@@ -1,3 +1,4 @@
+# ../cookbooks/hosts/default.rb
 hosts:
   file_name: /etc/hosts
   vals:
@@ -12,6 +13,7 @@ hosts:
     - 192.168.1.211	backend-pg1
     - 192.168.1.212	backend-pg2
 
+# ../cookbooks/postgresql/default.rb
 postgresql:
   rpm:     https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm
   pkg:
@@ -43,6 +45,7 @@ postgresql:
     hostname_prefix:  backend-
     replication_user: repl
 
+# ../cookbooks/pgpool-II/default.rb
 pgpool:
   rpm: http://www.pgpool.net/yum/rpms/3.6/redhat/rhel-7-x86_64/pgpool-II-release-3.6-1.noarch.rpm
   pkg:
