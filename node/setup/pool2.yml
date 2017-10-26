@@ -1,4 +1,4 @@
-hostname: pg2.localdomain
+hostname: pool2
 devices:
   - name:   enp0s8
     old_ip: 192.168.0.100
