@@ -1,3 +1,8 @@
-nic_dev_name: enp0s8
-hostname:     pool3.localdomain
-ip:           192.168.250.213
+hostname: pg2.localdomain
+devices:
+  - name:   enp0s8
+    old_ip: 192.168.0.100
+    new_ip: 192.168.0.203
+  - name:   enp0s9
+    old_ip: 192.168.1.100
+    new_ip: 192.168.1.203

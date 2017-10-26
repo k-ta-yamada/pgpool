@@ -1,12 +1,19 @@
 hosts:
   file_name: /etc/hosts
   vals:
-    - 192.168.250.210 pool
-    - 192.168.250.211 pool1
-    - 192.168.250.212 pool2
-    - 192.168.250.213 pool3
-    - 192.168.250.214 pg1
-    - 192.168.250.215 pg2
+    - 192.168.0.200	pool
+    - 192.168.0.201	pool1
+    - 192.168.0.202	pool2
+    - 192.168.0.203	pool3
+    - 192.168.0.211	pg1
+    - 192.168.0.212	pg2
+    - 192.168.0.213	pg3
+    - 192.168.1.201	bpool1
+    - 192.168.1.202	bpool2
+    - 192.168.1.203	bpool3
+    - 192.168.1.211	bpg1
+    - 192.168.1.212	bpg2
+    - 192.168.1.213	bpg3
 
 postgresql:
   rpm:     https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm
@@ -25,8 +32,8 @@ postgresql:
     locale:   --no-locale
   pg_hba_conf:
     - host    all             postgres        0.0.0.0/0               md5
-    - host    all             pgpool          192.168.250.0/24        md5
-    - host    replication     repl            192.168.250.0/24        md5
+    - host    all             pgpool          192.168.1.0/24          md5
+    - host    replication     repl            192.168.1.0/24          md5
   postgresql_conf:
     listen_addresses: "*"
     wal_level:        replica
@@ -45,7 +52,7 @@ pgpool:
     - postgres:e8a48653851e28c69d0506508fb27fc5
     - pool:b10a8c0bede9eb4ea771b04db3149f28
   pgpool_conf:
-    delegate_ip:  192.168.250.210
+    delegate_ip:  192.168.0.200
     nic_dev_name: enp0s8
     backend_hostname0: pg1
     backend_data_directory0: /var/lib/pgsql/9.6/data/
