@@ -1,17 +1,41 @@
+common:
+  vip: &vip 192.168.0.200
+  database_users:
+    replication_user:     &replication_user     repl
+    replication_password: &replication_password repl
+    xxx_check_user:       &xxx_check_user       pgpool
+    xxx_check_password:   &xxx_check_password   pgpool
+    recovery_user:        &recovery_user        postgres
+    recovery_password:    &recovery_password    postgres
+
+
 # ../cookbooks/hosts/default.rb
 hosts:
-  file_name: /etc/hosts
-  vals:
-    - 192.168.0.200	pool
-    - 192.168.0.201	pool1
-    - 192.168.0.202	pool2
-    - 192.168.0.211	pg1
-    - 192.168.0.212	pg2
-    # NOTE: recovery_1st_stage_sh.hostname_prefixに指定のprefixを付与すること
-    - 192.168.1.201	backend-pool1
-    - 192.168.1.202	backend-pool2
-    - 192.168.1.211	backend-pg1
-    - 192.168.1.212	backend-pg2
+  file_name:      /etc/hosts
+  vip:
+    - ip:   *vip
+      host: pool
+  frontend:
+    - ip:   192.168.0.201
+      host: pool1
+    - ip:   192.168.0.202
+      host: pool2
+    - ip:   192.168.0.211
+      host: pg1
+    - ip:   192.168.0.212
+      host: pg2
+  backend_prefix: backend-
+  backend:
+    # - ip:   192.168.1.200
+    #   host: pool
+    - ip:   192.168.1.201
+      host: pool1
+    - ip:   192.168.1.202
+      host: pool2
+    - ip:   192.168.1.211
+      host: pg1
+    - ip:   192.168.1.212
+      host: pg2
 
 # ../cookbooks/postgresql/default.rb
 postgresql:
@@ -30,10 +54,26 @@ postgresql:
     encoding: --encoding UTF8
     locale:   --no-locale
   pg_hba_conf:
-    - host    all             postgres        192.168.0.0/24          md5
-    - host    all             postgres        192.168.1.0/24          md5
-    - host    all             pgpool          192.168.1.0/24          md5
-    - host    replication     repl            192.168.1.0/24          md5
+    - type:        host
+      database:    all
+      user:        *recovery_user
+      address:     192.168.0.0/24
+      method_name: md5
+    - type:        host
+      database:    all
+      user:        *recovery_user
+      address:     192.168.1.0/24
+      method_name: md5
+    - type:        host
+      database:    all
+      user:        *xxx_check_user
+      address:     192.168.1.0/24
+      method_name: md5
+    - type:        host
+      database:    all
+      user:        *replication_user
+      address:     192.168.1.0/24
+      method_name: md5
   postgresql_conf:
     listen_addresses:  "*"
     wal_level:         replica
@@ -41,9 +81,14 @@ postgresql:
     wal_keep_segments: 32
     archive_mode:      "on"
   recovery_1st_stage_sh:
-    # NOTE: hostsに指定するバックエンドセグメントのaliasのprefixと一致させること
-    hostname_prefix:  backend-
-    replication_user: repl
+    replication_user: *replication_user
+  database_users:
+    replication_user:     *replication_user
+    replication_password: *replication_password
+    xxx_check_user:       *xxx_check_user
+    xxx_check_password:   *xxx_check_password
+    recovery_user:        *recovery_user
+    recovery_password:    *recovery_password
 
 # ../cookbooks/pgpool-II/default.rb
 pgpool:
@@ -54,10 +99,12 @@ pgpool:
     - pgpool-II-pg96-devel
     - pgpool-II-pg96-extensions
   pcp_conf:
-    - postgres:e8a48653851e28c69d0506508fb27fc5
-    - pool:b10a8c0bede9eb4ea771b04db3149f28
+    - username: *recovery_user
+      md5auth:  *recovery_password
+    - username: *xxx_check_user
+      md5auth:  *xxx_check_password
   pgpool_conf:
-    delegate_ip:  192.168.0.200
+    delegate_ip:  *vip
     nic_dev_name: enp0s8
     # NOTE: /etc/hostsに記載のバックエンドのalias名を使用すること
     backend_hostname0: backend-pg1
@@ -66,19 +113,29 @@ pgpool:
     backend_hostname1: backend-pg2
     backend_data_directory1: /var/lib/pgsql/9.6/data/
     log_destination:       syslog,stderr
-    sr_check_user:         pgpool
-    sr_check_password:     pgpool
+    sr_check_user:         *xxx_check_user
+    sr_check_password:     *xxx_check_password
     sr_check_database:     postgres
-    health_check_user:     pgpool
-    health_check_password: pgpool
+    health_check_user:     *xxx_check_user
+    health_check_password: *xxx_check_password
     failover_command:      /etc/pgpool-II/failover.sh %d %P %H %R
-    recovery_user:         postgres
-    recovery_password:     postgres
+    recovery_user:         *recovery_user
+    recovery_password:     *recovery_password
     recovery_1st_stage_command: recovery_1st_stage.sh
     recovery_2nd_stage_command: recovery_2nd_stage.sh
   pool_hba_conf:
-    - host    all         pgpool           0.0.0.0/0          md5
-    - host    all         postgres         0.0.0.0/0          md5
+    - type:        host
+      database:    all
+      user:        *xxx_check_user
+      address:     0.0.0.0/0
+      method_name: md5
+    - type:        host
+      database:    all
+      user:        *recovery_user
+      address:     0.0.0.0/0
+      method_name: md5
   pool_passwd:
-    - postgres:md53175bce1d3201d16594cebf9d7eb3f9d
-    - pgpool:md5f24aeb1c3b7d05d7eaf2cd648c307092
+    - username: *recovery_user
+      md5auth:  *recovery_password
+    - username: *xxx_check_user
+      md5auth:  *xxx_check_password

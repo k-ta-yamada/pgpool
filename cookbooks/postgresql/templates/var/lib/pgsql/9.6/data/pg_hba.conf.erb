@@ -87,5 +87,5 @@ host    all             all             ::1/128                 ident
 #local   replication     postgres                                peer
 #host    replication     postgres        127.0.0.1/32            ident
 #host    replication     postgres        ::1/128                 ident
-
-<%= @pg_hba_conf.join("\n") %>
+<% @pg_hba_conf.each do |r| %>
+<%= "#{r[:type]} #{r[:database]} #{r[:user]} #{r[:address]} #{r[:method_name]}" %><% end %>

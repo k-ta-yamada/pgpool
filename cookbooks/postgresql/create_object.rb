@@ -1,28 +1,26 @@
-execute 'ALTER ROLE postgres WITH PASSWORD' do
+DATABASE_USERS = node[:postgresql][:database_users]
+
+execute "ALTER ROLE #{DATABASE_USERS[:recovery_user]} WITH PASSWORD" do
   user 'postgres'
-  command %(psql -c "ALTER ROLE postgres WITH PASSWORD 'postgres'")
+  command %(psql -c "ALTER ROLE #{DATABASE_USERS[:recovery_user]} WITH PASSWORD '#{DATABASE_USERS[:recovery_password]}'")
 end
 
-# TODO: get user_name from xxx.yml
-execute 'DROP ROLE repl' do
+execute "DROP ROLE #{DATABASE_USERS[:replication_user]}" do
   user 'postgres'
-  command %(psql -c "DROP ROLE IF EXISTS repl")
+  command %(psql -c "DROP ROLE IF EXISTS #{DATABASE_USERS[:replication_user]}")
 end
-# TODO: get user_name from xxx.yml
-execute 'CREATE ROLE repl' do
+execute "CREATE ROLE #{DATABASE_USERS[:replication_user]}" do
   user 'postgres'
-  command %(psql -c "CREATE ROLE repl LOGIN REPLICATION PASSWORD 'repl'")
+  command %(psql -c "CREATE ROLE #{DATABASE_USERS[:replication_user]} LOGIN REPLICATION PASSWORD '#{DATABASE_USERS[:replication_password]}'")
 end
 
-# TODO: get user_name from xxx.yml
-execute 'DROP ROLE repl' do
+execute "DROP ROLE #{DATABASE_USERS[:xxx_check_user]}" do
   user 'postgres'
-  command %(psql -c "DROP ROLE IF EXISTS pgpool")
+  command %(psql -c "DROP ROLE IF EXISTS #{DATABASE_USERS[:xxx_check_user]}")
 end
-# TODO: get user_name from xxx.yml
-execute 'CREATE ROLE pgpool' do
+execute "CREATE ROLE #{DATABASE_USERS[:xxx_check_user]}" do
   user 'postgres'
-  command %(psql -c "CREATE ROLE pgpool LOGIN PASSWORD 'pgpool'")
+  command %(psql -c "CREATE ROLE #{DATABASE_USERS[:xxx_check_user]} LOGIN REPLICATION PASSWORD '#{DATABASE_USERS[:xxx_check_password]}'")
 end
 
 # MEMO: Dependent package: pgpool-II-96-extensions

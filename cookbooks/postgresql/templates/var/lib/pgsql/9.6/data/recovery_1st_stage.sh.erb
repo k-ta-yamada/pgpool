@@ -15,7 +15,7 @@ archivedir=<%= @archivedir %>
     192.168.0.1 pg1
     192.168.1.1 backend-pg1
 %>
-hostname=<%= @recovery_1st_stage_sh[:hostname_prefix] %>$(hostname)
+hostname=<%= @backend_prefix %>$(hostname)
 
 ssh -T postgres@$remote_host "
 rm -rf $remote_pgdata

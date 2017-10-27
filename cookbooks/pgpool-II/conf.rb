@@ -5,9 +5,8 @@ remote_file '/etc/pgpool-II/failover.sh' do
   mode  '755'
 end
 
-template '/etc/pgpool-II/pcp.conf' do
-  # source '/etc/pgpool-II/pcp.conf.erb'
-  variables(pcp_conf: node[:pgpool][:pcp_conf])
+node[:pgpool][:pcp_conf].each do |r|
+  execute "echo #{r[:username]}:$(pg_md5 #{r[:md5auth]}) >> /etc/pgpool-II/pcp.conf"
 end
 
 # MEMO: role側でホストごとに指定
@@ -26,10 +25,6 @@ template '/etc/pgpool-II/pool_hba.conf' do
   variables(pool_hba_conf: node[:pgpool][:pool_hba_conf])
 end
 
-template '/etc/pgpool-II/pool_passwd' do
-  # source '/etc/pgpool-II/pool_passwd.erb'
-  variables(pool_passwd: node[:pgpool][:pool_passwd])
-  owner 'root'
-  group 'root'
-  mode  '644'
+node[:pgpool][:pool_passwd].each do |r|
+  execute "pg_md5 --username #{r[:username]} --md5auth #{r[:md5auth]}"
 end
