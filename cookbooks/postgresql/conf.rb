@@ -1,5 +1,6 @@
-PGDATA          = node[:postgresql][:pgdata]
-ARCHIVEDIR      = node[:postgresql][:archivedir]
+PGDATA          = node[:postgresql][:common][:pgdata]
+ARCHIVEDIR      = node[:postgresql][:common][:archivedir]
+
 PG_HBA_CONF     = node[:postgresql][:pg_hba_conf]
 POSTGRESQL_CONF = node[:postgresql][:postgresql_conf]
 RECOVERY_1ST_STAGE_SH = node[:postgresql][:recovery_1st_stage_sh]

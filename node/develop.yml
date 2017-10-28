@@ -1,13 +1,14 @@
 common:
   vip: &vip 192.168.0.200
   database_users:
+    superuser:            &superuser            postgres
+    superuser_password:   &superuser_password   postgres
     replication_user:     &replication_user     repl
     replication_password: &replication_password repl
     xxx_check_user:       &xxx_check_user       pgpool
     xxx_check_password:   &xxx_check_password   pgpool
     recovery_user:        &recovery_user        postgres
     recovery_password:    &recovery_password    postgres
-
 
 # ../cookbooks/hosts/default.rb
 hosts:
@@ -47,16 +48,25 @@ postgresql:
     - postgresql96-libs
     - postgresql96-contrib
     - pgpool-II-96-extensions
-  bin_dir:    /usr/pgsql-9.6/bin/
-  pgdata:     /var/lib/pgsql/9.6/data/
-  archivedir: /var/lib/pgsql/9.6/archivedir/
-  initdb_options:
-    encoding: --encoding UTF8
-    locale:   --no-locale
+  common:
+    bindir:     /usr/pgsql-9.6/bin/
+    pgdata:     &pgdata     /var/lib/pgsql/9.6/data/
+    archivedir: &archivedir /var/lib/pgsql/9.6/archivedir/
+    superuser:          *superuser
+    superuser_password: *superuser_password
+  initdb:
+    su:
+      user: postgres
+    option:
+      pgdata:   *pgdata
+      encoding: UTF8
+      locale:   C
+      pwfile:   /var/lib/pgsql/pwfile
+      username: *superuser
   pg_hba_conf:
     - type:        host
       database:    all
-      user:        *recovery_user
+      user:        *superuser
       address:     192.168.0.0/24
       method_name: md5
     - type:        host
@@ -82,13 +92,21 @@ postgresql:
     archive_mode:      "on"
   recovery_1st_stage_sh:
     replication_user: *replication_user
-  database_users:
-    replication_user:     *replication_user
-    replication_password: *replication_password
-    xxx_check_user:       *xxx_check_user
-    xxx_check_password:   *xxx_check_password
-    recovery_user:        *recovery_user
-    recovery_password:    *recovery_password
+  create_object:
+    role:
+      - name:     *replication_user
+        password: *replication_password
+        option:
+          - LOGIN
+          - REPLICATION
+      - name:     *xxx_check_user
+        password: *xxx_check_password
+        option:
+          - LOGIN
+    extension:
+      - name: pgpool_recovery
+        dbname: template1
+        # option: []
 
 # ../cookbooks/pgpool-II/default.rb
 pgpool:
