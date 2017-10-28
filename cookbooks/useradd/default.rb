@@ -1,3 +1,4 @@
+# TODO: user resource
 execute 'useradd postgres' do
   not_if 'grep postgres /etc/passwd'
 end
