@@ -1,5 +1,5 @@
 common:
-  vip: &vip 192.168.0.200
+  vip: &vip 192.168.1.200
   database_users:
     superuser:            &superuser            postgres
     superuser_password:   &superuser_password   postgres
@@ -17,37 +17,43 @@ hosts:
     - ip:   *vip
       host: pool
   frontend:
-    - ip:   192.168.0.201
-      host: pool1
-    - ip:   192.168.0.202
-      host: pool2
-    - ip:   192.168.0.211
-      host: pg1
-    - ip:   192.168.0.212
-      host: pg2
+    # - host: pool
+    #   ip:   192.168.1.200
+    - host: pool1
+      ip:   192.168.1.201
+    - host: pool2
+      ip:   192.168.1.202
+    - host: pg1
+      ip:   192.168.1.201
+    - host: pg2
+      ip:   192.168.1.202
   backend_prefix: backend-
   backend:
-    # - ip:   192.168.1.200
-    #   host: pool
-    - ip:   192.168.1.201
-      host: pool1
-    - ip:   192.168.1.202
-      host: pool2
-    - ip:   192.168.1.211
-      host: pg1
-    - ip:   192.168.1.212
-      host: pg2
+    # - host: pool
+    #   ip:   192.168.2.200
+    - host: pool1
+      ip:   192.168.2.201
+    - host: pool2
+      ip:   192.168.2.202
+    - host: pg1
+      ip:   192.168.2.201
+    - host: pg2
+      ip:   192.168.2.202
 
 # ../cookbooks/postgresql/default.rb
 postgresql:
-  rpm:     https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm
+  rpm: https://download.postgresql.org/pub/repos/yum/9.6/redhat/rhel-7-x86_64/pgdg-centos96-9.6-3.noarch.rpm
   pkg:
     - postgresql96
     - postgresql96-server
     - postgresql96-devel
     - postgresql96-libs
     - postgresql96-contrib
-    - pgpool-II-96-extensions
+    # - pgpool-II-96-extensions
+  rpm_for_extension:
+    http://www.pgpool.net/yum/rpms/3.6/redhat/rhel-7-x86_64/pgpool-II-release-3.6-1.noarch.rpm
+  pkg_for_extension:
+    - pgpool-II-pg96-extensions
   common:
     bindir:     /usr/pgsql-9.6/bin/
     pgdata:     &pgdata     /var/lib/pgsql/9.6/data/
@@ -67,22 +73,22 @@ postgresql:
     - type:        host
       database:    all
       user:        *superuser
-      address:     192.168.0.0/24
+      address:     192.168.1.0/24
       method_name: md5
     - type:        host
       database:    all
       user:        *recovery_user
-      address:     192.168.1.0/24
+      address:     192.168.2.0/24
       method_name: md5
     - type:        host
       database:    all
       user:        *xxx_check_user
-      address:     192.168.1.0/24
+      address:     192.168.2.0/24
       method_name: md5
     - type:        host
-      database:    all
+      database:    replication
       user:        *replication_user
-      address:     192.168.1.0/24
+      address:     192.168.2.0/24
       method_name: md5
   postgresql_conf:
     listen_addresses:  "*"
@@ -92,21 +98,20 @@ postgresql:
     archive_mode:      "on"
   recovery_1st_stage_sh:
     replication_user: *replication_user
-  create_object:
-    role:
-      - name:     *replication_user
-        password: *replication_password
-        option:
-          - LOGIN
-          - REPLICATION
-      - name:     *xxx_check_user
-        password: *xxx_check_password
-        option:
-          - LOGIN
-    extension:
-      - name: pgpool_recovery
-        dbname: template1
-        # option: []
+  create_role:
+    - name:     *replication_user
+      password: *replication_password
+      option:
+        - LOGIN
+        - REPLICATION
+    - name:     *xxx_check_user
+      password: *xxx_check_password
+      option:
+        - LOGIN
+  create_extension:
+    - name: pgpool_recovery
+      dbname: template1
+      # option: []
 
 # ../cookbooks/pgpool-II/default.rb
 pgpool:
@@ -123,7 +128,8 @@ pgpool:
       md5auth:  *xxx_check_password
   pgpool_conf:
     delegate_ip:  *vip
-    nic_dev_name: enp0s8
+    # nic_dev_name: enp0s8
+    nic_dev_name: eth1
     # NOTE: /etc/hostsに記載のバックエンドのalias名を使用すること
     backend_hostname0: backend-pg1
     backend_data_directory0: /var/lib/pgsql/9.6/data/
