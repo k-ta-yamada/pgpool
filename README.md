@@ -53,8 +53,8 @@ itamae ssh --host pg1 --node-yaml node/develop.yml roles/db_master.rb --dry-run
 itamae ssh --host pg2 --node-yaml node/develop.yml roles/db_slave.rb  --dry-run
 
 # pgpool
-itamae ssh --host pool1 --node-yaml node/develop.yml roles/pool1.rb --dry-run
-itamae ssh --host pool2 --node-yaml node/develop.yml roles/pool2.rb --dry-run
+itamae ssh --host pg1 --node-yaml node/develop.yml roles/pool1.rb --dry-run
+itamae ssh --host pg2 --node-yaml node/develop.yml roles/pool2.rb --dry-run
 ```
 
 ### Remaining Task
