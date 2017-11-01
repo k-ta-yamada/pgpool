@@ -48,13 +48,13 @@ vagrant up
 #   itamae ssh -h vm --node-yaml node/setup/pool1.yml roles/setup.rb --dry-run
 #   itamae ssh -h vm --node-yaml node/setup/pool1.yml roles/setup.rb --dry-run
 
-# database
-itamae ssh --host pg1 --node-yaml node/develop.yml roles/db_master.rb --dry-run
-itamae ssh --host pg2 --node-yaml node/develop.yml roles/db_slave.rb  --dry-run
+# PostgreSQL
+itamae ssh --host pg1 --node-yaml node/develop.yml roles/db_master.rb
+itamae ssh --host pg2 --node-yaml node/develop.yml roles/db_slave.rb
 
-# pgpool
-itamae ssh --host pg1 --node-yaml node/develop.yml roles/pool1.rb --dry-run
-itamae ssh --host pg2 --node-yaml node/develop.yml roles/pool2.rb --dry-run
+# pgpool-II
+itamae ssh --host pg1 --node-yaml node/develop.yml roles/pool1.rb
+itamae ssh --host pg2 --node-yaml node/develop.yml roles/pool2.rb
 ```
 
 ### Remaining Task
