@@ -27,6 +27,7 @@ Vagrant.configure("2") do |config|
       sudo chmod 700 /root/.ssh/
       ssh-keygen -yf /vagrant/.vagrant/machines/#{pg1.vm.hostname}/virtualbox/private_key > /root/.ssh/authorized_keys
       chmod 600 /root/.ssh/authorized_keys
+      timedatectl set-timezone Asia/Tokyo
     SHELL
   end
 
@@ -42,6 +43,7 @@ Vagrant.configure("2") do |config|
         sudo chmod 700 /root/.ssh/
         ssh-keygen -yf /vagrant/.vagrant/machines/#{pg2.vm.hostname}/virtualbox/private_key > /root/.ssh/authorized_keys
         chmod 600 /root/.ssh/authorized_keys
+        timedatectl set-timezone Asia/Tokyo
       SHELL
   end
 
