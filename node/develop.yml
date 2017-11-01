@@ -121,12 +121,18 @@ pgpool:
     - pgpool-II-pg96-debuginfo
     - pgpool-II-pg96-devel
     - pgpool-II-pg96-extensions
+  common:
+    rundir: &rundir /var/run/pgpool
   pcp_conf:
     - username: *recovery_user
       md5auth:  *recovery_password
     - username: *xxx_check_user
       md5auth:  *xxx_check_password
   pgpool_conf:
+    socket_dir:        *rundir
+    pcp_socket_dir:    *rundir
+    logdir:            *rundir
+    wd_ipc_socket_dir: *rundir
     delegate_ip:  *vip
     # nic_dev_name: enp0s8
     nic_dev_name: eth1
