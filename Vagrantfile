@@ -32,19 +32,19 @@ Vagrant.configure("2") do |config|
   end
 
   config.vm.define :pg2 do |pg2|
-      # pg2.vm.provider "virtualbox" do |v|
-      #   v.linked_clone = true
-      # end
-      pg2.vm.hostname = 'pg2'
-      pg2.vm.network "private_network", ip: "192.168.1.202"
-      pg2.vm.network "private_network", ip: "192.168.2.202"
-      pg2.vm.provision :shell, inline: <<-SHELL
-        sudo su - root -c "mkdir /root/.ssh/"
-        sudo chmod 700 /root/.ssh/
-        ssh-keygen -yf /vagrant/.vagrant/machines/#{pg2.vm.hostname}/virtualbox/private_key > /root/.ssh/authorized_keys
-        chmod 600 /root/.ssh/authorized_keys
-        timedatectl set-timezone Asia/Tokyo
-      SHELL
+    # pg2.vm.provider "virtualbox" do |v|
+    #   v.linked_clone = true
+    # end
+    pg2.vm.hostname = 'pg2'
+    pg2.vm.network "private_network", ip: "192.168.1.202"
+    pg2.vm.network "private_network", ip: "192.168.2.202"
+    pg2.vm.provision :shell, inline: <<-SHELL
+      sudo su - root -c "mkdir /root/.ssh/"
+      sudo chmod 700 /root/.ssh/
+      ssh-keygen -yf /vagrant/.vagrant/machines/#{pg2.vm.hostname}/virtualbox/private_key > /root/.ssh/authorized_keys
+      chmod 600 /root/.ssh/authorized_keys
+      timedatectl set-timezone Asia/Tokyo
+    SHELL
   end
 
   if Vagrant.has_plugin?("vagrant-vbguest")

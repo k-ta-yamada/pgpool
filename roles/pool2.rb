@@ -6,11 +6,11 @@ include_recipe '../cookbooks/pgpool-II'
 template '/etc/pgpool-II/pgpool.conf' do
   source '../cookbooks/pgpool-II/templates/etc/pgpool-II/pgpool.conf.erb'
   variables(pgpool_conf: node[:pgpool][:pgpool_conf],
-  wd_hostname:            'pool2',
-  heartbeat_destination0: 'pool1',
-  heartbeat_destination1: 'pool3',
-  other_pgpool_hostname0: 'pool1',
-  other_pgpool_hostname1: 'pool3')
+            wd_hostname:            'pool2',
+            heartbeat_destination0: 'pool1',
+            heartbeat_destination1: 'pool3',
+            other_pgpool_hostname0: 'pool1',
+            other_pgpool_hostname1: 'pool3')
 end
 
 # MEMO: pg_md5の関連でpgpool.confの作成後に実行する必要がある
