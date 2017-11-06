@@ -16,35 +16,61 @@ Vagrant.configure("2") do |config|
   config.vm.box_version = "1710.01"
 
   config.vm.define :pg1 do |pg1|
-    # pg1.vm.provider "virtualbox" do |v|
-    #   v.linked_clone = true
-    # end
+    pg1.vm.provider "virtualbox" do |v|
+      v.linked_clone = true
+    end
+
     pg1.vm.hostname = 'pg1'
+
     pg1.vm.network "private_network", ip: "192.168.1.201"
     pg1.vm.network "private_network", ip: "192.168.2.201"
-    pg1.vm.provision :shell, inline: <<-SHELL
-      sudo su - root -c "mkdir /root/.ssh/"
-      sudo chmod 700 /root/.ssh/
-      ssh-keygen -yf /vagrant/.vagrant/machines/#{pg1.vm.hostname}/virtualbox/private_key > /root/.ssh/authorized_keys
-      chmod 600 /root/.ssh/authorized_keys
-      timedatectl set-timezone Asia/Tokyo
-    SHELL
+
+    pg1.vm.provision "ssh:root", type: :shell do |s|
+      private_key = "/vagrant/.vagrant/machines/#{pg1.vm.hostname}/virtualbox/private_key"
+      s.inline = <<-SHELL
+        sudo su - root -c "mkdir -p /root/.ssh/"
+        sudo chmod 700 /root/.ssh/
+        ssh-keygen -yf #{private_key} > /root/.ssh/authorized_keys
+        sudo chmod 600 /root/.ssh/authorized_keys
+      SHELL
+    end
   end
 
   config.vm.define :pg2 do |pg2|
-    # pg2.vm.provider "virtualbox" do |v|
-    #   v.linked_clone = true
-    # end
+    pg2.vm.provider "virtualbox" do |v|
+      v.linked_clone = true
+    end
+
     pg2.vm.hostname = 'pg2'
+
     pg2.vm.network "private_network", ip: "192.168.1.202"
     pg2.vm.network "private_network", ip: "192.168.2.202"
-    pg2.vm.provision :shell, inline: <<-SHELL
-      sudo su - root -c "mkdir /root/.ssh/"
-      sudo chmod 700 /root/.ssh/
-      ssh-keygen -yf /vagrant/.vagrant/machines/#{pg2.vm.hostname}/virtualbox/private_key > /root/.ssh/authorized_keys
-      chmod 600 /root/.ssh/authorized_keys
-      timedatectl set-timezone Asia/Tokyo
-    SHELL
+
+    pg2.vm.provision "ssh:root", type: :shell do |s|
+      private_key = "/vagrant/.vagrant/machines/#{pg2.vm.hostname}/virtualbox/private_key"
+      s.inline = <<-SHELL
+        sudo su - root -c "mkdir -p /root/.ssh/"
+        sudo chmod 700 /root/.ssh/
+        ssh-keygen -yf #{private_key} > /root/.ssh/authorized_keys
+        sudo chmod 600 /root/.ssh/authorized_keys
+      SHELL
+    end
+  end
+
+  config.vm.provision "selinux:disabled", type: :shell do |s|
+    s.inline = "sed -i 's/^SELINUX=enforcing/SELINUX=disabled/' /etc/selinux/config"
+  end
+
+  config.vm.provision "timedatectl:set-timezone:Asia/Tokyo", type: :shell do |s|
+    s.inline = "timedatectl set-timezone Asia/Tokyo"
+  end
+
+  config.vm.provision "yum:install:tmux", type: :shell do |s|
+    s.inline = "yum install tmux -y"
+  end
+
+  config.vm.provision "yum:install:vim", type: :shell do |s|
+    s.inline = "yum install vim-enhanced -y"
   end
 
   if Vagrant.has_plugin?("vagrant-vbguest")
@@ -54,9 +80,9 @@ Vagrant.configure("2") do |config|
 
   if Vagrant.has_plugin?("vagrant-proxyconf")
     puts "-- has_plugin: vagrant-proxyconf"
-    puts "  -- http_proxy  is [#{ENV["http_proxy"]}]"
-    puts "  -- https_proxy is [#{ENV["https_proxy"]}]"
-    puts "  -- no_proxy    is [#{ENV["no_proxy"]}]"
+    puts "   http_proxy  is [#{ENV["http_proxy"]}]"
+    puts "   https_proxy is [#{ENV["https_proxy"]}]"
+    puts "   no_proxy    is [#{ENV["no_proxy"]}]"
     config.proxy.http     = ENV["http_proxy"]
     config.proxy.https    = ENV["https_proxy"]
     config.proxy.no_proxy = ENV["no_proxy"]

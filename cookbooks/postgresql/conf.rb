@@ -42,7 +42,7 @@ template "#{PGDATA}#{RECOVERY_1ST_STAGE}" do
 end
 
 remote_file "#{PGDATA}#{RECOVERY_2ND_STAGE}" do
-  source  './files/var/lib/pgsql/9.6/data/recovery_2nd_stage.sh'
+  source  './files/var/lib/pgsql/9.6/data/pgpool_remote_start'
   owner   'postgres'
   group   'postgres'
   mode    '755'

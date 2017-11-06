@@ -10,8 +10,6 @@ PostgreSQL High availability configuration by pgpool-II with watchdog.
 
 ### Using `itamae`
 
-> NOTE: Please remove `--dry-run` option if you really want to apply
-
 ```sh
 # install itamae
 # NOTE: in the following command example omit "bundle exec"
@@ -21,6 +19,7 @@ bundle install --path vendor/bundle
 vagrant plugin install vagrant-vbguest
 vagrant plugin install vagrant-proxyconf # if you needed
 vagrant up
+vagrant reload # to reflect SELINUX setting change, reload.
 
 # edit "/ etc / hosts", "/.ssh/config", etc. as necessary
 # ex) ~/.ssh/config
@@ -48,23 +47,124 @@ vagrant up
 #   itamae ssh -h vm --node-yaml node/setup/pool1.yml roles/setup.rb --dry-run
 #   itamae ssh -h vm --node-yaml node/setup/pool1.yml roles/setup.rb --dry-run
 
-# PostgreSQL
-itamae ssh --host pg1 --node-yaml node/develop.yml roles/db_master.rb
-itamae ssh --host pg2 --node-yaml node/develop.yml roles/db_slave.rb
+# Primary node `pg1`: PostgreSQL and pgpool-II
+itamae ssh -h pg1 -y node/develop.yml roles/db_master.rb
+itamae ssh -h pg1 -y node/develop.yml roles/pool1.rb
 
-# pgpool-II
-itamae ssh --host pg1 --node-yaml node/develop.yml roles/pool1.rb
-itamae ssh --host pg2 --node-yaml node/develop.yml roles/pool2.rb
+# Standby node `pg2`: PostgreSQL and pgpool-II
+itamae ssh -h pg2 -y node/develop.yml roles/db_slave.rb
+itamae ssh -h pg2 -y node/develop.yml roles/pool2.rb
 ```
 
 ### Remaining Task
 
-- ssh-copy
-  - for `pcp_recovery_node`.
-- pcp_recovery_node
-  - for start streaming replication.
+#### `ssh postgres@pg[1|2]` for `pcp_recovery_node`
+
+Set up so that ssh connection without passphrase can be connected with `postgres` user from both servers.
+
+> Note: host names used for the connection are `backend-pg1` and` backend-pg2`.  
+> because `Streaming Replication` and `pg_basebackup` use the backend network.  
+> ref: [./cookbooks/postgresql/templates/var/lib/pgsql/9.6/data/recovery_1st_stage.sh.erb#L18]()  
+> ref: [./cookbooks/pgpool-II/templates/etc/pgpool-II/pgpool.conf.erb#L65]()  
+> please check `hosts.backend_prefix` and` common.hostnames` of `node/xxx.yml` for the actual host name.  
+
+1. generate key: `ssh-keygen` on both servers.
+2. copy the contents of the public key to `~ /.ssh/authorized_keys` of the other server
+3. connect by postgres user
+    - primary node: pg1
+        1. `su - postgres`
+        1. `ssh backend-pg2`
+    - standby node: pg2
+        1. `su - postgres`
+        1. `ssh backend-pg1`
+
+#### start up primary node and standby node(only pgpool)
+
+> NOTE: Start up PostgreSQL with `pg_ctl` instead of `systemctl`.
+
+primary node
+
+```
+ssh pg1
+su - postgres
+/usr/pgsql-9.6/bin/pg_ctl start -w -D /var/lib/pgsql/9.6/data/
+exit
+systemctl start pgpool.service
+```
+
+standby node
+
+```
+ssh pg2
+su - postgres
+systemctl start pgpool.service
+```
+
+and check node status
+
+```
+pcp_watchdog_info -h pool -U pgpool -v
+Password:
+Watchdog Cluster Information
+Total Nodes          : 2
+Remote Nodes         : 1
+Quorum state         : QUORUM EXIST
+Alive Remote Nodes   : 1
+VIP up on local node : YES
+Master Node Name     : backend-pool1:9999 Linux pg1
+Master Host Name     : backend-pool1
+
+Watchdog Node Information
+Node Name      : backend-pool1:9999 Linux pg1
+Host Name      : backend-pool1
+Delegate IP    : 192.168.1.200
+Pgpool port    : 9999
+Watchdog port  : 9000
+Node priority  : 1
+Status         : 4
+Status Name    : MASTER
+
+Node Name      : backend-pool2:9999 Linux pg2
+Host Name      : backend-pool2
+Delegate IP    : 192.168.1.200
+Pgpool port    : 9999
+Watchdog port  : 9000
+Node priority  : 1
+Status         : 7
+Status Name    : STANDBY
+```
+
+```
+pcp_node_info -h pool -U pgpool -v 0
+Password:
+Hostname   : backend-pg1
+Port       : 5432
+Status     : 1
+Weight     : 0.500000
+Status Name: waiting
+```
+
+```
+pcp_node_info -h pool -U pgpool -v 1
+Password:
+Hostname   : backend-pg2
+Port       : 5432
+Status     : 3
+Weight     : 0.500000
+Status Name: down
+```
+
+#### start up standby node
+
+for start streaming replication.
+
+```
+pcp_recovery_node -h pool -U pgpool -n 1
+````
 
 
+
+---
 
 ## todo
 
@@ -75,8 +175,8 @@ itamae ssh --host pg2 --node-yaml node/develop.yml roles/pool2.rb
   - pool1 => pg2
   - pool2 => pg1
   - pool2 => pg2
-- [ ] get database user_name from xxx.yml
-  - [ ] [./cookbooks/postgresql/create_role.rb](./cookbooks/postgresql/create_role.rb)
+- [x] get database user_name from xxx.yml
+  - [x] [./cookbooks/postgresql/create_role.rb](./cookbooks/postgresql/create_role.rb)
 - [x] `epel-release` need? => don't need.
   - [x] [./roles/db_master.rb](./roles/db_master.rb)
   - [x] [./roles/db_slave.rb](./roles/db_slave.rb)
@@ -98,13 +198,13 @@ itamae ssh --host pg2 --node-yaml node/develop.yml roles/pool2.rb
 
 
 
+---
+
 ## refs:
 
 - [Itamae by itamae-kitchen][itamae]
   - [Resources · itamae-kitchen/itamae Wiki][Resources]
   - [Best Practice · itamae-kitchen/itamae Wiki][Best-Practice]
-
----
 
 - Qiita
   - [Itamaeチートシート - Qiita][qiita1]
