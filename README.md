@@ -6,7 +6,7 @@ PostgreSQL High availability configuration by pgpool-II with watchdog.
 
 
 
-## usage
+## Usage
 
 ### Server setup
 
@@ -47,7 +47,7 @@ Set up so that ssh connection without passphrase can be connected with `postgres
 > please check `hosts.backend_prefix` and` common.hostnames` of `node/xxx.yml` for the actual host name.  
 
 1. generate key: `ssh-keygen` on both servers.
-2. copy the contents of the public key to `~ /.ssh/authorized_keys` of the other server
+2. copy the contents of the public key to `~/.ssh/authorized_keys` of the other server
 3. connect by postgres user
     - primary node: pg1
         1. `su - postgres`
@@ -56,7 +56,7 @@ Set up so that ssh connection without passphrase can be connected with `postgres
         1. `su - postgres`
         1. `ssh backend-pg1`
 
-#### 2. start up primary node and standby node(only pgpool)
+#### 2. Start up primary node and standby node(only pgpool)
 
 > NOTE: Start up PostgreSQL with `pg_ctl` instead of `systemctl`.
 
@@ -132,13 +132,33 @@ Weight     : 0.500000
 Status Name: down
 ```
 
-#### 3. start up standby node
+#### 3. Start up standby node
 
 for start streaming replication.
 
 ```
 pcp_recovery_node -h pool -U pgpool -n 1
-````
+```
+
+#### Troubleshoot
+
+If the execution of `pcp_recovery_node` fails, if the host OS is windows,  
+check `recovery_1st_stage.sh.erb` or `recovery_1st_stage.sh` on the server.
+
+In the case of windows
+```
+file cookbooks\postgresql\templates\var\lib\pgsql\9.6\data\recovery_1st_stage.sh.erb
+```
+
+On the server
+```
+file /var/lib/pgsql/9.6/data/recovery_1st_stage.sh
+```
+
+change `CRLF` to `LF` sample
+```
+sed -i "s/\r//g /var/lib/pgsql/9.6/data/recovery_1st_stage.sh"
+```
 
 
 
