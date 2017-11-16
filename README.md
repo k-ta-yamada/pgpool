@@ -40,15 +40,15 @@ itamae ssh -h pg2 -y node/develop.yml roles/pool2.rb
 
 Set up so that ssh connection without passphrase can be connected with `postgres` user from both servers.
 
-> Note: host names used for the connection are `backend-pg1` and` backend-pg2`.  
+> Note: host names used for the connection are `backend-pg1` and `backend-pg2`.  
 > because `Streaming Replication` and `pg_basebackup` use the backend network.  
 > ref: [./cookbooks/postgresql/templates/var/lib/pgsql/9.6/data/recovery_1st_stage.sh.erb#L18](./cookbooks/postgresql/templates/var/lib/pgsql/9.6/data/recovery_1st_stage.sh.erb#L18)  
 > ref: [./cookbooks/pgpool-II/templates/etc/pgpool-II/pgpool.conf.erb#L65](./cookbooks/pgpool-II/templates/etc/pgpool-II/pgpool.conf.erb#L65)  
-> please check `hosts.backend_prefix` and` common.hostnames` of `node/xxx.yml` for the actual host name.  
+> please check `hosts.backend_prefix` and `common.hostnames` of `node/xxx.yml` for the actual host name.  
 
 1. generate key: `ssh-keygen` on both servers.
-2. copy the contents of the public key to `~/.ssh/authorized_keys` of the other server
-3. connect by postgres user
+1. copy the contents of the public key to `~/.ssh/authorized_keys` of the other server
+1. connect by postgres user
     - primary node: pg1
         1. `su - postgres`
         1. `ssh backend-pg2`
@@ -62,7 +62,7 @@ Set up so that ssh connection without passphrase can be connected with `postgres
 
 primary node
 
-```
+```sh
 ssh pg1
 su - postgres
 /usr/pgsql-9.6/bin/pg_ctl start -w -D /var/lib/pgsql/9.6/data/
@@ -72,7 +72,7 @@ systemctl start pgpool.service
 
 standby node
 
-```
+```sh
 ssh pg2
 su - postgres
 systemctl start pgpool.service
@@ -80,7 +80,7 @@ systemctl start pgpool.service
 
 and check node status
 
-```
+```sh
 pcp_watchdog_info -h pool -U pgpool -v
 Password:
 Watchdog Cluster Information
@@ -112,7 +112,7 @@ Status         : 7
 Status Name    : STANDBY
 ```
 
-```
+```sh
 pcp_node_info -h pool -U pgpool -v 0
 Password:
 Hostname   : backend-pg1
@@ -122,7 +122,7 @@ Weight     : 0.500000
 Status Name: waiting
 ```
 
-```
+```sh
 pcp_node_info -h pool -U pgpool -v 1
 Password:
 Hostname   : backend-pg2
@@ -136,7 +136,7 @@ Status Name: down
 
 for start streaming replication.
 
-```
+```sh
 pcp_recovery_node -h pool -U pgpool -n 1
 ```
 
@@ -146,17 +146,20 @@ If the execution of `pcp_recovery_node` fails, if the host OS is windows,
 check `recovery_1st_stage.sh.erb` or `recovery_1st_stage.sh` on the server.
 
 In the case of windows
-```
+
+```sh
 file cookbooks\postgresql\templates\var\lib\pgsql\9.6\data\recovery_1st_stage.sh.erb
 ```
 
 On the server
-```
+
+```sh
 file /var/lib/pgsql/9.6/data/recovery_1st_stage.sh
 ```
 
 change `CRLF` to `LF` sample
-```
+
+```sh
 sed -i "s/\r//g /var/lib/pgsql/9.6/data/recovery_1st_stage.sh"
 ```
 
