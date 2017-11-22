@@ -160,7 +160,7 @@ file /var/lib/pgsql/9.6/data/recovery_1st_stage.sh
 change `CRLF` to `LF` sample
 
 ```sh
-sed -i "s/\r//g /var/lib/pgsql/9.6/data/recovery_1st_stage.sh"
+sed -i "s/\r//g" /var/lib/pgsql/9.6/data/recovery_1st_stage.sh
 ```
 
 
