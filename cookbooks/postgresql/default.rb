@@ -2,7 +2,9 @@
 # yum install
 # ##################################################
 package node[:postgresql][:rpm] do
-  not_if 'rpm -q pgdg-centos96-9.6-3'
+  # not_if 'rpm -q pgdg-centos96-9.6-3'
+  # not_if 'rpm -q pgdg-redhat96-9.6-3'
+  not_if "rpm -q #{File.basename(node[:postgresql][:rpm], '.noarch.rpm')}"
 end
 
 node[:postgresql][:pkg].each do |pkg|
