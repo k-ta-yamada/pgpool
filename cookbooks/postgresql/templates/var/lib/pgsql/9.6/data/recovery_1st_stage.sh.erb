@@ -33,6 +33,6 @@ cat > recovery.conf << EOT
 standby_mode = 'on'
 primary_conninfo = 'host="$hostname" port=$port user=<%= @recovery_1st_stage_sh[:replication_user] %>'
 <%# ひとまずいらない気がするのでコメントアウト %>
-<%# restore_command = 'scp $hostname:$archivedir/%f %p' %>
+restore_command = 'scp $hostname:$archivedir/%f %p'
 EOT
 "
