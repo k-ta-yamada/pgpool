@@ -165,6 +165,7 @@ pgpool:
     health_check_user:     *xxx_check_user
     health_check_password: *xxx_check_password
     failover_command:      /etc/pgpool-II/failover.sh %d %P %H %R
+    failover_log_dir:      /var/log/pgpool
     recovery_user:         *recovery_user
     recovery_password:     *recovery_password
     recovery_1st_stage_command: recovery_1st_stage.sh
