@@ -5,6 +5,8 @@ remote_file '/etc/pgpool-II/failover.sh' do
   mode  '755'
 end
 
+directory node[:pgpool][:pgpool_conf][:failover_log_dir]
+
 node[:pgpool][:pcp_conf].each do |r|
   execute "echo #{r[:username]}:$(pg_md5 #{r[:md5auth]}) >> /etc/pgpool-II/pcp.conf"
 end
