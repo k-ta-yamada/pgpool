@@ -12,23 +12,37 @@
 #                  %r = new master port number
 #                  %% = '%' character
 
-falling_node=$1          # %d
-old_primary=$2           # %P
-new_primary=$3           # %H
-pgdata=$4                # %R
+node_id=$1                          # %d = node id
+host_name=$2                        # %h = host name
+port_number=$3                      # %p = port number
+database_cluster_path=$4            # %D = database cluster path
+new_master_node_id=$5               # %m = new master node id
+old_master_node_id=$6               # %M = old master node id
+new_master_node_host_name=$7        # %H = new master node host name
+old_primary_node_id=$8              # %P = old primary node id
+new_master_database_cluster_path=$9 # %R = new master database cluster path
+# new_master_port_number=$1           # %r = new master port number
 
 pghome=/usr/pgsql-9.6
 log=/var/log/pgpool/failover.log
 
 date >> $log
-echo "failed_node_id=$falling_node new_primary=$new_primary" >> $log
+echo "  node_id                          = $node_id"                          >> $log
+echo "  host_name                        = $host_name"                        >> $log
+echo "  port_number                      = $port_number"                      >> $log
+echo "  database_cluster_path            = $database_cluster_path"            >> $log
+echo "  new_master_node_id               = $new_master_node_id"               >> $log
+echo "  old_master_node_id               = $old_master_node_id"               >> $log
+echo "  new_master_node_host_name        = $new_master_node_host_name"        >> $log
+echo "  old_primary_node_id              = $old_primary_node_id"              >> $log
+echo "  new_master_database_cluster_path = $new_master_database_cluster_path" >> $log
 
-if [ $falling_node = $old_primary ]; then
+if [ $node_id = $old_primary_node_id ]; then
     if [ $UID -eq 0 ]
     then
-        su postgres -c "ssh -T postgres@$new_primary $pghome/bin/pg_ctl promote -D $pgdata"
+        su postgres -c "ssh -T postgres@$new_master_node_host_name $pghome/bin/pg_ctl promote -D $new_master_database_cluster_path"
     else
-        ssh -T postgres@$new_primary $pghome/bin/pg_ctl promote -D $pgdata
+        ssh -T postgres@$new_master_node_host_name $pghome/bin/pg_ctl promote -D $new_master_database_cluster_path
     fi
     exit 0;
 fi;
