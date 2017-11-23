@@ -164,7 +164,7 @@ pgpool:
     sr_check_database:     postgres
     health_check_user:     *xxx_check_user
     health_check_password: *xxx_check_password
-    failover_command:      /etc/pgpool-II/failover.sh %d %P %H %R
+    failover_command:      /etc/pgpool-II/failover.sh %d %h %p %D %m %M %H %P %R
     failover_log_dir:      /var/log/pgpool
     recovery_user:         *recovery_user
     recovery_password:     *recovery_password
