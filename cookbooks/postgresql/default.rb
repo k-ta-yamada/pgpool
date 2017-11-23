@@ -11,6 +11,12 @@ node[:postgresql][:pkg].each do |pkg|
   package pkg
 end
 
+# MEMO: Change 'Environment=PGDATA' for starting with systemd
+template "/etc/systemd/system/postgresql-9.6.service" do
+  variables environment_pgdata: node[:postgresql][:common][:pgdata]
+end
+execute 'systemctl daemon-reload'
+
 # ##################################################
 # yum install: FOR EXTENSION
 # ##################################################
