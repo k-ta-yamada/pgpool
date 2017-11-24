@@ -1,41 +1,36 @@
-# # file "/etc/hosts" do
-# file "/root/test" do
-#   action :create
-# end
-
-# file "/root/test" do
-#   action :delete
-# end
-
 FILE_NAME = node[:hosts][:file_name]
 VIP       = node[:hosts][:vip]
 FRONTEND  = node[:hosts][:frontend]
 BACKEND   = node[:hosts][:backend]
 BACKEND_PREFIX = node[:common][:backend_prefix]
 
-file FILE_NAME do
-  action :create
-  not_if "test -e #{FILE_NAME}"
-end
+stdout = run_command("cat #{FILE_NAME}").stdout
+regexp = /(?<ip>\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})\s*(?<hostname>.*$)/
+HSOTS = stdout.split("\n")
+              .reject(&:empty?)
+              .map(&:chomp)
+              .map { |v| v.match(regexp) }
+              .compact
+              .map(&:named_captures).map { |v| v["ip"] }
+              .uniq
 
 file FILE_NAME do
   action :edit
   block do |content|
-    content << "\n"
     VIP.each do |val|
-      content << "#{val[:ip]} #{val[:host]}\n"
+      content << "#{val[:ip]} #{val[:host]}\n" unless HSOTS.include?(val[:ip])
     end
 
-    content << "\n"
     FRONTEND.each do |val|
-      content << "#{val[:ip]} #{val[:host]}\n"
+      content << "#{val[:ip]} #{val[:host]}\n" unless HSOTS.include?(val[:ip])
     end
 
-    content << "\n"
     BACKEND.each do |val|
-      content << "#{val[:ip]} #{BACKEND_PREFIX}#{val[:host]}\n"
+      content << "#{val[:ip]} #{BACKEND_PREFIX}#{val[:host]}\n" unless HSOTS.include?(val[:ip])
     end
   end
+end
 
-  not_if "grep '#{FRONTEND.first[:ip]}' #{FILE_NAME}"
+execute "sed -i 's/\r//g' #{FILE_NAME}" do
+  only_if "test -e #{FILE_NAME}"
 end
