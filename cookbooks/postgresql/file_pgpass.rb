@@ -1,5 +1,5 @@
 PATH = node[:postgresql][:pgpass][:path]
-BACKEND_PREFIX = node[:hosts][:backend_prefix]
+BACKEND_PREFIX = node[:common][:backend_prefix]
 
 file "#{PATH}.pgpass" do
   sample = "#hostname:port:database:username:password"

@@ -11,7 +11,7 @@ FILE_NAME = node[:hosts][:file_name]
 VIP       = node[:hosts][:vip]
 FRONTEND  = node[:hosts][:frontend]
 BACKEND   = node[:hosts][:backend]
-BACKEND_PREFIX = node[:hosts][:backend_prefix]
+BACKEND_PREFIX = node[:common][:backend_prefix]
 
 file FILE_NAME do
   action :create
@@ -25,14 +25,17 @@ file FILE_NAME do
     VIP.each do |val|
       content << "#{val[:ip]} #{val[:host]}\n"
     end
+
     content << "\n"
     FRONTEND.each do |val|
       content << "#{val[:ip]} #{val[:host]}\n"
     end
+
     content << "\n"
     BACKEND.each do |val|
       content << "#{val[:ip]} #{BACKEND_PREFIX}#{val[:host]}\n"
     end
   end
+
   not_if "grep '#{FRONTEND.first[:ip]}' #{FILE_NAME}"
 end

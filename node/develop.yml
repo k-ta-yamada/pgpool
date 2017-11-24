@@ -3,6 +3,7 @@ common:
   hostnames:
     primary: pg1
     standby: pg2
+  backend_prefix: &backend_prefix backend-
   database_users:
     superuser:            &superuser            postgres
     superuser_password:   &superuser_password   postgres
@@ -20,24 +21,11 @@ hosts:
     - host: pool
       ip:   *vip
   frontend:
-    - host: pool
-      ip:   192.168.1.200
-    - host: pool1
-      ip:   192.168.1.201
-    - host: pool2
-      ip:   192.168.1.202
     - host: pg1
       ip:   192.168.1.201
     - host: pg2
       ip:   192.168.1.202
-  backend_prefix: backend-
   backend:
-    # - host: pool
-    #   ip:   192.168.2.200
-    - host: pool1
-      ip:   192.168.2.201
-    - host: pool2
-      ip:   192.168.2.202
     - host: pg1
       ip:   192.168.2.201
     - host: pg2
