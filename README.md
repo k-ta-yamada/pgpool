@@ -27,11 +27,11 @@ bundle install --path vendor/bundle
 
 # Primary node `pg1`: PostgreSQL and pgpool-II
 itamae ssh -h pg1 -y node/develop.yml roles/db_master.rb
-itamae ssh -h pg1 -y node/develop.yml roles/pool1.rb
+itamae ssh -h pg1 -y node/develop.yml roles/pgpool.rb
 
 # Standby node `pg2`: PostgreSQL and pgpool-II
 itamae ssh -h pg2 -y node/develop.yml roles/db_slave.rb
-itamae ssh -h pg2 -y node/develop.yml roles/pool2.rb
+itamae ssh -h pg2 -y node/develop.yml roles/pgpool.rb
 ```
 
 ### Remaining 3 Task
