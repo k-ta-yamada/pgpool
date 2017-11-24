@@ -18,6 +18,10 @@ remote_file '/etc/pgpool-II/failover.sh' do
   mode  '755'
 end
 
+execute "sed -i 's/\r//g' /etc/pgpool-II/failover.sh" do
+  only_if "test -e /etc/pgpool-II/failover.sh"
+end
+
 node[:pgpool][:pcp_conf].each do |r|
   execute "echo #{r[:username]}:$(pg_md5 #{r[:md5auth]}) >> /etc/pgpool-II/pcp.conf"
 end
