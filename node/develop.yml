@@ -1,8 +1,12 @@
 common:
-  vip: &vip 192.168.1.200
+  vip:
+    nic: &nic eth1
+    ip:  &vip 192.168.1.200
   hostnames:
-    primary: pg1
-    standby: pg2
+    vip:     &hostname_vip     pool
+    primary: &hostname_primary pg1
+    standby: &hostname_standby pg2
+  backend_prefix: &backend_prefix backend-
   database_users:
     superuser:            &superuser            postgres
     superuser_password:   &superuser_password   postgres
@@ -17,30 +21,17 @@ common:
 hosts:
   file_name: /etc/hosts
   vip:
-    - host: pool
+    - host: *hostname_vip
       ip:   *vip
   frontend:
-    - host: pool
-      ip:   192.168.1.200
-    - host: pool1
+    - host: *hostname_primary
       ip:   192.168.1.201
-    - host: pool2
+    - host: *hostname_standby
       ip:   192.168.1.202
-    - host: pg1
-      ip:   192.168.1.201
-    - host: pg2
-      ip:   192.168.1.202
-  backend_prefix: backend-
   backend:
-    # - host: pool
-    #   ip:   192.168.2.200
-    - host: pool1
+    - host: *hostname_primary
       ip:   192.168.2.201
-    - host: pool2
-      ip:   192.168.2.202
-    - host: pg1
-      ip:   192.168.2.201
-    - host: pg2
+    - host: *hostname_standby
       ip:   192.168.2.202
 
 # ../cookbooks/postgresql/default.rb
@@ -66,12 +57,12 @@ postgresql:
   pgpass:
     path: /var/lib/pgsql/
     entries:
-      - host:     pg1
+      - host:     *hostname_primary
         port:     5432
         database: replication
         username: *replication_user
         password: *replication_password
-      - host:     pg2
+      - host:     *hostname_standby
         port:     5432
         database: replication
         username: *replication_user
@@ -139,37 +130,87 @@ pgpool:
     - pgpool-II-pg96-extensions
   common:
     rundir: &rundir /var/run/pgpool
+    logdir: &logdir /var/log/pgpool
+  pgpool_conf:
+    #------------------------------------------------------------------------------
+    # CONNECTIONS
+    #------------------------------------------------------------------------------
+    # - pgpool Connection Settings -
+    socket_dir: *rundir
+    # - pgpool Communication Manager Connection Settings -
+    pcp_socket_dir: *rundir
+    # - Backend Connection Settings -
+    backend_hostname0:       *hostname_primary
+    backend_data_directory0: *pgdata
+    backend_hostname1:       *hostname_standby
+    backend_data_directory1: *pgdata
+    #------------------------------------------------------------------------------
+    # LOGS
+    #------------------------------------------------------------------------------
+    log_destination: syslog,stderr
+    #------------------------------------------------------------------------------
+    # FILE LOCATIONS
+    #------------------------------------------------------------------------------
+    logdir: *logdir
+    #------------------------------------------------------------------------------
+    # MASTER/SLAVE MODE
+    #------------------------------------------------------------------------------
+    sr_check_user:     *xxx_check_user
+    sr_check_password: *xxx_check_password
+    sr_check_database: postgres
+    #------------------------------------------------------------------------------
+    # HEALTH CHECK
+    #------------------------------------------------------------------------------
+    health_check_user:     *xxx_check_user
+    health_check_password: *xxx_check_password
+    #------------------------------------------------------------------------------
+    # FAILOVER AND FAILBACK
+    #------------------------------------------------------------------------------
+    failover_command: /etc/pgpool-II/failover.sh %d %h %p %D %m %M %H %P %R
+    #------------------------------------------------------------------------------
+    # ONLINE RECOVERY
+    #------------------------------------------------------------------------------
+    recovery_user:     *recovery_user
+    recovery_password: *recovery_password
+    recovery_1st_stage_command: recovery_1st_stage.sh
+    recovery_2nd_stage_command: pgpool_remote_start
+    #------------------------------------------------------------------------------
+    # WATCHDOG
+    #------------------------------------------------------------------------------
+    # - Watchdog communication Settings -
+    # - Virtual IP control Setting -
+    delegate_ip:  *vip
+    nic_dev_name: *nic
+    # - Watchdog communication Settings -
+    wd_ipc_socket_dir: *rundir
+    depend_on_hostname:
+      # NOTE: THIS KEY NAME IS HOSTNAME
+      #       if your target hostname is `foo`, then change `pg1:` to `foo:`.
+      pg1:
+        # - Watchdog communication Settings -
+        wd_hostname:            *hostname_primary
+        # -- heartbeat mode --
+        heartbeat_destination0: *hostname_standby
+        heartbeat_destination1: dummy
+        # - Other pgpool Connection Settings -
+        other_pgpool_hostname0: *hostname_standby
+        other_pgpool_hostname1: dummy
+      # NOTE: THIS KEY NAME IS HOSTNAME
+      #       if your target hostname is `foo`, then change `pg1:` to `foo:`.
+      pg2:
+        # - Watchdog communication Settings -
+        wd_hostname:            *hostname_standby
+        # -- heartbeat mode --
+        heartbeat_destination0: *hostname_primary
+        heartbeat_destination1: dummy
+        # - Other pgpool Connection Settings -
+        other_pgpool_hostname0: *hostname_primary
+        other_pgpool_hostname1: dummy
   pcp_conf:
     - username: *recovery_user
       md5auth:  *recovery_password
     - username: *xxx_check_user
       md5auth:  *xxx_check_password
-  pgpool_conf:
-    socket_dir:        *rundir
-    pcp_socket_dir:    *rundir
-    logdir:            *rundir
-    wd_ipc_socket_dir: *rundir
-    delegate_ip:  *vip
-    # nic_dev_name: enp0s8
-    nic_dev_name: eth1
-    # NOTE: /etc/hostsに記載のバックエンドのalias名を使用すること
-    backend_hostname0: backend-pg1
-    backend_data_directory0: /var/lib/pgsql/9.6/data/
-    # NOTE: /etc/hostsに記載のバックエンドのalias名を使用すること
-    backend_hostname1: backend-pg2
-    backend_data_directory1: /var/lib/pgsql/9.6/data/
-    log_destination:       syslog,stderr
-    sr_check_user:         *xxx_check_user
-    sr_check_password:     *xxx_check_password
-    sr_check_database:     postgres
-    health_check_user:     *xxx_check_user
-    health_check_password: *xxx_check_password
-    failover_command:      /etc/pgpool-II/failover.sh %d %h %p %D %m %M %H %P %R
-    failover_log_dir:      /var/log/pgpool
-    recovery_user:         *recovery_user
-    recovery_password:     *recovery_password
-    recovery_1st_stage_command: recovery_1st_stage.sh
-    recovery_2nd_stage_command: pgpool_remote_start
   pool_hba_conf:
     - type:        host
       database:    all

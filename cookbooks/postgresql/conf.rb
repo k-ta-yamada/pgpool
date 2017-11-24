@@ -5,7 +5,7 @@ PG_HBA_CONF     = node[:postgresql][:pg_hba_conf]
 POSTGRESQL_CONF = node[:postgresql][:postgresql_conf]
 RECOVERY_1ST_STAGE_SH = node[:postgresql][:recovery_1st_stage_sh]
 
-BACKEND_PREFIX = node[:hosts][:backend_prefix]
+BACKEND_PREFIX = node[:common][:backend_prefix]
 
 PGPOOL_CONF        = node[:pgpool][:pgpool_conf]
 RECOVERY_1ST_STAGE = PGPOOL_CONF[:recovery_1st_stage_command]

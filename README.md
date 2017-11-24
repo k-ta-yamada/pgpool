@@ -44,7 +44,7 @@ Set up so that ssh connection without passphrase can be connected with `postgres
 > because `Streaming Replication` and `pg_basebackup` use the backend network.  
 > ref: [./cookbooks/postgresql/templates/var/lib/pgsql/9.6/data/recovery_1st_stage.sh.erb#L18](./cookbooks/postgresql/templates/var/lib/pgsql/9.6/data/recovery_1st_stage.sh.erb#L18)  
 > ref: [./cookbooks/pgpool-II/templates/etc/pgpool-II/pgpool.conf.erb#L65](./cookbooks/pgpool-II/templates/etc/pgpool-II/pgpool.conf.erb#L65)  
-> please check `hosts.backend_prefix` and `common.hostnames` of `node/xxx.yml` for the actual host name.
+> please check `common.backend_prefix` and `common.hostnames` of `node/xxx.yml` for the actual host name.
 
 1. generate key: `ssh-keygen` on both servers.
 1. copy the contents of the public key to `~/.ssh/authorized_keys` of the other server
