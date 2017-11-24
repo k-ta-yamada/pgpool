@@ -41,12 +41,20 @@ template "#{PGDATA}#{RECOVERY_1ST_STAGE}" do
   only_if "test -d #{PGDATA}"
 end
 
+execute "sed -i 's/\r//g' #{PGDATA}#{RECOVERY_1ST_STAGE}" do
+  only_if "test -e #{PGDATA}#{RECOVERY_1ST_STAGE}"
+end
+
 remote_file "#{PGDATA}#{RECOVERY_2ND_STAGE}" do
   source  './files/var/lib/pgsql/9.6/data/pgpool_remote_start'
   owner   'postgres'
   group   'postgres'
   mode    '755'
   only_if "test -d #{PGDATA}"
+end
+
+execute "sed -i 's/\r//g' #{PGDATA}#{RECOVERY_2ND_STAGE}" do
+  only_if "test -e #{PGDATA}#{RECOVERY_2ND_STAGE}"
 end
 
 service 'postgresql-9.6.service' do
