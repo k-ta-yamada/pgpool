@@ -62,7 +62,7 @@ serialize_accept = off
 
 # - Backend Connection Settings -
 
-backend_hostname0 = '<%= @pgpool_conf[:backend_hostname0] %>'
+backend_hostname0 = '<%= @backend_prefix %><%= @pgpool_conf[:backend_hostname0] %>'
                                    # Host name or IP address to connect to for backend 0
 backend_port0 = 5432
                                    # Port number for backend 0
@@ -73,7 +73,7 @@ backend_data_directory0 = '<%= @pgpool_conf[:backend_data_directory0] %>'
 backend_flag0 = 'ALLOW_TO_FAILOVER'
                                    # Controls various backend behavior
                                    # ALLOW_TO_FAILOVER or DISALLOW_TO_FAILOVER
-backend_hostname1 = '<%= @pgpool_conf[:backend_hostname1] %>'
+backend_hostname1 = '<%= @backend_prefix %><%= @pgpool_conf[:backend_hostname1] %>'
 backend_port1 = 5432
 backend_weight1 = 1
 backend_data_directory1 = '<%= @pgpool_conf[:backend_data_directory1] %>'
@@ -478,7 +478,7 @@ ping_path = '/bin'
 
 # - Watchdog communication Settings -
 
-wd_hostname = '<%= @wd_hostname %>'
+wd_hostname = '<%= @backend_prefix %><%= @depend_on_hostname[:wd_hostname] %>'
                                     # Host name or IP address of this watchdog
                                     # (change requires restart)
 wd_port = 9000
@@ -565,7 +565,7 @@ wd_heartbeat_keepalive = 2
 wd_heartbeat_deadtime = 30
                                     # Deadtime interval for heartbeat signal (sec)
                                     # (change requires restart)
-heartbeat_destination0 = '<%= @heartbeat_destination0 %>'
+heartbeat_destination0 = '<%= @backend_prefix %><%= @depend_on_hostname[:heartbeat_destination0] %>'
                                     # Host name or IP address of destination 0
                                     # for sending heartbeat signal.
                                     # (change requires restart)
@@ -582,7 +582,7 @@ heartbeat_device0 = ''
                                     # and pgpool has root privilege.
                                     # (change requires restart)
 
-#heartbeat_destination1 = '<%= @heartbeat_destination1 %>'
+#heartbeat_destination1 = '<%= @backend_prefix %><%= @depend_on_hostname[:heartbeat_destination1] %>'
 #heartbeat_destination_port1 = 9694
 #heartbeat_device1 = ''
 
@@ -606,7 +606,7 @@ wd_lifecheck_password = ''
 
 # - Other pgpool Connection Settings -
 
-other_pgpool_hostname0 = '<%= @other_pgpool_hostname0 %>'
+other_pgpool_hostname0 = '<%= @backend_prefix %><%= @depend_on_hostname[:other_pgpool_hostname0] %>'
                                     # Host name or IP address to connect to for other pgpool 0
                                     # (change requires restart)
 other_pgpool_port0 = 9999
@@ -615,7 +615,7 @@ other_pgpool_port0 = 9999
 other_wd_port0 = 9000
                                     # Port number for othet watchdog 0
                                     # (change requires restart)
-#other_pgpool_hostname1 = '<%= @other_pgpool_hostname1 %>'
+#other_pgpool_hostname1 = '<%= @backend_prefix %><%= @depend_on_hostname[:other_pgpool_hostname1] %>'
 #other_pgpool_port1 = 9999
 #other_wd_port1 = 9000
 
