@@ -12,6 +12,12 @@ service 'postgresql-9.6.service' do
   action :stop
 end
 
+directory PGDATA do
+  owner 'postgres'
+  group 'postgres'
+  mode  '600'
+end
+
 # MEMO: ディレクトを削除すると本番機だとまずそうなのでファイル削除
 execute "rm -rf #{PGDATA}*"
 
