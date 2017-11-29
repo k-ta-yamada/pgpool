@@ -2,7 +2,8 @@ BACKEND_PREFIX = node[:common][:backend_prefix]
 
 template '/etc/pgpool-II/pgpool.conf' do
   hostname = run_command("hostname").stdout.chomp
-  depend_on_hostname = node[:pgpool][:pgpool_conf][:depend_on_hostname][hostname]
+  depend_on_hostname = node[:pgpool][:pgpool_conf][:depend_on_hostname]
+                       .select { |v| v["setting_for"] == hostname }.first
 
   variables backend_prefix: BACKEND_PREFIX,
             pgpool_conf: node[:pgpool][:pgpool_conf],

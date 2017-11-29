@@ -184,22 +184,20 @@ pgpool:
     # - Watchdog communication Settings -
     wd_ipc_socket_dir: *rundir
     depend_on_hostname:
-      # NOTE: THIS KEY NAME IS HOSTNAME
-      #       if your target hostname is `foo`, then change `pg1:` to `foo:`.
-      pg1:
+      # NOTE: `setting_for` should be set to the host name to be applied.
+      #       For details, refer to `template '/etc/pgpool-II/pgpool.conf'` of `conf.rb`.
+      - setting_for: *hostname_primary
         # - Watchdog communication Settings -
-        wd_hostname:            *hostname_primary
+        wd_hostname: *hostname_primary
         # -- heartbeat mode --
         heartbeat_destination0: *hostname_standby
         heartbeat_destination1: dummy
         # - Other pgpool Connection Settings -
         other_pgpool_hostname0: *hostname_standby
         other_pgpool_hostname1: dummy
-      # NOTE: THIS KEY NAME IS HOSTNAME
-      #       if your target hostname is `foo`, then change `pg1:` to `foo:`.
-      pg2:
+      - setting_for: *hostname_standby
         # - Watchdog communication Settings -
-        wd_hostname:            *hostname_standby
+        wd_hostname: *hostname_standby
         # -- heartbeat mode --
         heartbeat_destination0: *hostname_primary
         heartbeat_destination1: dummy
