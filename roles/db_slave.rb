@@ -7,6 +7,7 @@ include_recipe '../cookbooks/postgresql/file_pgpass'
 # include_recipe '../cookbooks/postgresql/conf'
 # include_recipe '../cookbooks/postgresql/create_role'
 # include_recipe '../cookbooks/postgresql/create_extension'
+include_recipe '../cookbooks/postgresql/sudoers.d.rb'
 
 service 'postgresql-9.6.service' do
   action :stop
