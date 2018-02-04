@@ -68,9 +68,7 @@ primary node
 
 ```sh
 ssh pg1
-su - postgres
-/usr/pgsql-9.6/bin/pg_ctl start -w -D /var/lib/pgsql/9.6/data/
-exit
+systemctl start postgresql-9.6.service
 systemctl start pgpool.service
 ```
 
@@ -78,7 +76,6 @@ standby node
 
 ```sh
 ssh pg2
-su - postgres
 systemctl start pgpool.service
 ```
 

@@ -1,0 +1,6 @@
+Defaults:postgres !requiretty
+
+postgres ALL=NOPASSWD: <%= @systemctl_path %> stop    postgresql*.service
+postgres ALL=NOPASSWD: <%= @systemctl_path %> start   postgresql*.service
+postgres ALL=NOPASSWD: <%= @systemctl_path %> restart postgresql*.service
+postgres ALL=NOPASSWD: <%= @systemctl_path %> status  postgresql*.service
